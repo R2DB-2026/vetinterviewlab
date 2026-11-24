@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="th"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Vet Interview Lab — ห้องซ้อมซักประวัติ</title>
+<script>document.documentElement.className='js'</script>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Kanit:ital,wght@0,400;0,500;0,600;1,500&family=IBM+Plex+Sans+Thai:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ============ EDITABLE THEME TOKENS — "Oak & Forest Clinic" ============ */
+:root{
+  /* dark grounds: forest green */
+  --forest:#0f3a2c; --forest2:#17503c; --forest3:#236650; --deep:#082a1f;
+  /* wood: oak brown */
+  --oak:#a8713a; --oak2:#7d5124; --oak3:#d7b27a; --oakpale:#f3e7d3;
+  /* air: sky blue + white */
+  --sky:#dcecf7; --sky2:#b9d9ee; --skydeep:#4f97c8; --white:#fffefb;
+  /* text */
+  --ink:#12241d; --mutl:#5c6e66; --mutd:#9dbdb0;
+  /* semantic (trust + safety) */
+  --open:#7fd1a6; --neutral:#8fc3e8; --guard:#d49a56; --stop:#c4432f;
+  --line:rgba(255,255,255,.16); --lineL:rgba(18,36,29,.14);
+  --fd:'Kanit','Leelawadee UI','Thonburi','Noto Sans Thai',sans-serif;
+  --fb:'IBM Plex Sans Thai','Leelawadee UI','Thonburi','Noto Sans Thai',sans-serif;
+}
+/* ============ BASE ============ */
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{font-size:clamp(15px,1.2vw,28px);scroll-behavior:auto}
+body{margin:0;background:var(--forest);color:var(--white);font-family:var(--fb);line-height:1.5;overflow-x:hidden}
+h1,h2,h3,.disp{font-family:var(--fd);font-weight:600;line-height:1.15;margin:0}
+p{margin:0}
+button{font:inherit;cursor:pointer}
+.scene{position:relative}
+.stick{position:sticky;top:0;height:100svh;overflow:hidden}
+.slide{position:relative;min-height:100svh;display:flex;flex-direction:column;justify-content:center;padding:3.6rem 6vw 3rem}
+.dark{background:linear-gradient(160deg,var(--forest) 0%,var(--deep) 100%);color:var(--white)}
+.light{background:linear-gradient(180deg,var(--white) 0%,var(--sky) 100%);color:var(--ink)}
+.oakbg{background:linear-gradient(160deg,var(--oak2),#5b3a18);color:var(--white)}
+.wrap{max-width:92rem;margin:0 auto;width:100%}
+.kick{font-family:var(--fd);font-weight:500;letter-spacing:.14em;text-transform:uppercase;font-size:.8rem;color:var(--oak3);margin-bottom:.7rem}
+.light .kick{color:var(--oak2)}
+h2{font-size:2.8rem}
+.lead{font-size:1.15rem;color:var(--mutd);max-width:48rem;margin-top:.6rem}
+.light .lead{color:var(--mutl)}
+.src{font-size:.85rem;color:var(--mutd);margin-top:.6rem}
+.light .src{color:var(--mutl)}
+.cap{font-size:.95rem;color:var(--mutl)}
+/* reveal */
+.js .rv{opacity:0;translate:0 1.4rem;transition:opacity .7s ease,translate .7s ease;transition-delay:calc(var(--i,0)*90ms)}
+.js .rv.in{opacity:1;translate:0 0}
+.js [data-in]{opacity:0}
+/* cards */
+.card{background:var(--white);border:1px solid var(--lineL);border-radius:1.1rem;padding:1.2rem 1.3rem;box-shadow:0 .5rem 1.4rem rgba(15,58,44,.08)}
+.dark .card{background:rgba(255,255,255,.06);border-color:var(--line);box-shadow:none}
+.card h3{font-size:1.25rem;margin-bottom:.4rem}
+.chip{display:inline-block;font-size:.85rem;padding:.12rem .7rem;border-radius:2rem;border:1px solid currentColor;font-family:var(--fd)}
+.grid{display:grid;gap:1.1rem}
+.g3{grid-template-columns:repeat(3,1fr)}.g2{grid-template-columns:1fr 1fr}.g4{grid-template-columns:repeat(4,1fr)}
+.band{margin-top:1.4rem;padding:1rem 1.4rem;border-radius:1rem;background:linear-gradient(90deg,var(--oak2),var(--oak));color:var(--white);font-family:var(--fd);font-size:1.3rem}
+/* ============ HUD ============ */
+.hud{position:fixed;inset:0;pointer-events:none;z-index:50;color:var(--white);transition:color .3s}
+.hud.l{color:var(--forest)}
+.brand{position:absolute;left:2.2vw;top:1.2rem;display:flex;align-items:center;gap:.6rem;font-family:var(--fd);font-weight:600;font-size:.95rem}
+.brand svg{width:1.7rem;height:1.7rem}
+.top-r{position:absolute;right:2.2vw;top:1.2rem;text-align:right;font-size:.85rem;opacity:.85}
+.top-r b{font-family:var(--fd);font-weight:500;letter-spacing:.06em}
+.dots{position:absolute;right:1.1vw;top:50%;translate:0 -50%;display:flex;flex-direction:column;gap:.9rem;pointer-events:auto}
+.dots a{position:relative;width:.7rem;height:.7rem;border-radius:50%;border:2px solid currentColor;opacity:.5;display:block;cursor:pointer}
+.dots a.on{opacity:1;background:currentColor}
+.dots a span{position:absolute;right:1.4rem;top:50%;translate:0 -50%;white-space:nowrap;font-size:.75rem;opacity:0;transition:opacity .2s;background:rgba(8,42,31,.9);color:var(--white);padding:.15rem .6rem;border-radius:.4rem}
+.dots a:hover span{opacity:1}
+.bar{position:absolute;left:0;bottom:0;height:.28rem;background:var(--oak3);width:0}
+.keys{position:absolute;left:50%;bottom:.8rem;translate:-50% 0;font-size:.8rem;opacity:.7;transition:opacity 1s;white-space:nowrap}
+.keys.gone{opacity:0}
+#notes{position:fixed;right:1.4rem;bottom:1.4rem;width:min(30rem,90vw);background:rgba(8,42,31,.96);color:var(--white);border:1px solid var(--oak);border-radius:1rem;padding:1rem 1.2rem;z-index:60;font-size:.85rem}
+#notes h4{margin:0 0 .4rem;font-family:var(--fd);font-weight:500;color:var(--oak3);font-size:.9rem}
+#notes .tm{margin-top:.6rem;font-size:.75rem;color:var(--mutd)}
+/* ============ 1 HERO ============ */
+.hero .pic{position:absolute;inset:-5%;transform-origin:50% 60%}
+.hero svg{width:100%;height:100%;display:block}
+.hero .title{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:0 6vw;text-shadow:0 .2rem 1.5rem rgba(0,0,0,.4)}
+.hero .title h1{font-size:5.4rem;letter-spacing:.01em}
+.hero .title p{font-size:1.5rem;margin-top:1rem;color:var(--sky2)}
+.hero .title .chip{margin-top:1.6rem;color:var(--oak3)}
+.hero .capt{position:absolute;left:0;right:0;bottom:2.2rem;text-align:center;font-family:var(--fd);font-size:1.8rem;padding:0 6vw}
+.wave{animation:wv 7s linear infinite}
+.wave2{animation:wv 11s linear infinite reverse;opacity:.6}
+@keyframes wv{to{transform:translateX(-400px)}}
+.bob{animation:bob 5s ease-in-out infinite}
+@keyframes bob{50%{transform:translateY(8px)}}
+/* ============ 2 HOOK ============ */
+.hook{background:#06231a}
+.hook .ln{position:absolute;left:0;right:0;top:50%;translate:0 -50%;text-align:center;padding:0 10vw;font-family:var(--fd);font-weight:500;font-size:3rem;line-height:1.3}
+.hook .ln small{display:block;font-family:var(--fb);font-weight:400;font-size:1.2rem;color:var(--mutd);margin-top:1rem}
+.hook .ln em{font-style:normal;color:var(--oak3)}
+.hook .big{font-size:5rem}
+.hook .reveal{position:absolute;left:0;right:0;top:50%;translate:0 -50%;text-align:center}
+.hook .reveal h2{font-size:4.6rem}
+.hook .reveal h2 span{color:var(--sky2)}
+.hook .reveal p{font-size:1.5rem;color:var(--oak3);margin-top:1rem}
+/* ============ 3 PROBLEM ============ */
+.owner{position:relative}
+.owner .persona{font-family:var(--fd);font-size:.95rem;letter-spacing:.1em;color:var(--oak2);text-transform:uppercase}
+.owner q{display:block;font-size:1.45rem;margin:.6rem 0;font-family:var(--fd);font-weight:400;quotes:none;color:var(--forest)}
+.owner .why{font-size:1.02rem;color:var(--mutl)}
+/* ============ 4 THEN/NOW ============ */
+.tn .panel{position:absolute;inset:0;padding:6rem 8vw 5rem}
+.tn .then{background:linear-gradient(160deg,var(--oak2),#4b2f12);color:var(--white)}
+.tn .now{background:linear-gradient(180deg,var(--white),var(--sky));color:var(--ink);clip-path:inset(0 100% 0 0)}
+.tn h2{font-size:3rem;margin-bottom:1.4rem}
+.tn ul{list-style:none;padding:0;margin:0;font-size:1.5rem;display:grid;gap:1rem;max-width:36rem}
+.tn li::before{content:"";display:inline-block;width:.6rem;height:.6rem;border-radius:50%;background:currentColor;opacity:.6;margin-right:.8rem}
+
+.tn .handle{position:absolute;top:0;bottom:0;width:.3rem;background:var(--oak);left:0;z-index:3;box-shadow:0 0 1.4rem rgba(0,0,0,.4)}
+.tn .tiles{position:absolute;left:8vw;right:8vw;bottom:7rem;display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;z-index:4}
+.tile{background:var(--forest);color:var(--white);border-radius:1rem;padding:1rem 1.2rem}
+.tile b{font-family:var(--fd);font-size:3rem;font-weight:600;color:var(--oak3);display:block;line-height:1}
+.tile span{font-size:1rem;color:var(--sky2)}
+.tn .bridge{position:absolute;left:8vw;right:8vw;bottom:2.6rem;font-family:var(--fd);font-size:1.5rem;text-align:center;z-index:4;color:var(--forest)}
+.tn .bridge s{color:var(--stop);opacity:.8}
+/* ============ 5 TRUST ============ */
+.tr{background:linear-gradient(160deg,var(--forest),var(--deep));padding:4.2rem 6vw 2.4rem}
+.tr .wrap{height:100%;display:flex;flex-direction:column}
+.trgrid{display:grid;grid-template-columns:.8fr 1.4fr;gap:2rem;flex:1;min-height:0;margin-top:.8rem}
+.layers{display:grid;gap:.7rem;align-content:start}
+.lay{border:1px solid var(--line);border-radius:.9rem;padding:.7rem 1rem;background:rgba(255,255,255,.05)}
+.lay b{font-family:var(--fd);font-weight:500;font-size:1.15rem;display:block}
+.lay span{font-size:.98rem;color:var(--mutd)}
+.lay.k1{border-color:var(--open)}
+.lay.k4{border-color:var(--oak)}
+.ra{position:relative;min-height:0}
+.tags,.convs{position:absolute;inset:0;transition:opacity .6s}
+.tags{display:grid;grid-template-columns:1fr 1fr;gap:.9rem;align-content:start}
+.tag{border-radius:1rem;padding:.9rem 1.1rem;background:rgba(255,255,255,.07);border:1px solid var(--line);opacity:.25;transition:opacity .6s}
+.tag i{font-style:normal;font-family:var(--fd);font-size:2rem;color:var(--oak3);margin-right:.5rem}
+.tag b{font-family:var(--fd);font-weight:500}
+.tag q{display:block;font-size:1.1rem;margin-top:.3rem;color:var(--sky2);quotes:none}
+.tr.s1 .tag.v,.tr.s2 .tag{opacity:1}
+.convs{opacity:0;display:grid;grid-template-columns:1fr 1fr;gap:1rem;pointer-events:none;align-items:start}
+.tr.s3 .tags{opacity:0}
+.tr.s3 .convs{opacity:1}
+.conv{border-radius:1rem;border:1px solid var(--line);padding:1rem;background:rgba(255,255,255,.05);opacity:0;transition:opacity .6s;display:flex;flex-direction:column;gap:.5rem}
+.tr.s3 .conv.A{opacity:1}
+.tr.s4 .conv.A{opacity:.45}.tr.s4 .conv.B,.tr.s5 .conv.B{opacity:1}.tr.s5 .conv.A{opacity:.45}
+.conv h3{font-size:1.3rem}
+.m{font-size:1.1rem;padding:.45rem .7rem;border-radius:.8rem;max-width:92%}
+.m.st{background:var(--skydeep);color:var(--white);align-self:flex-start}
+.m.ow{background:var(--oakpale);color:var(--ink);align-self:flex-end}
+.m small{display:block;font-size:.8rem;opacity:.7}
+.meter{margin-top:1rem;font-size:.95rem}
+.meter .tk{height:.5rem;border-radius:1rem;background:rgba(255,255,255,.14);margin-top:.3rem;overflow:hidden}
+.meter .tk i{display:block;height:100%;border-radius:1rem}
+.A .meter b{color:var(--guard)}.B .meter b{color:var(--open)}
+.A .tk i{width:22%;background:var(--guard)}.B .tk i{width:92%;background:var(--open)}
+.trcap{text-align:center;font-family:var(--fd);font-size:1.3rem;margin-top:.8rem;opacity:0;transition:opacity .6s;color:var(--oak3)}
+.tr.s5 .trcap{opacity:1}
+/* ============ 6 RUBRIC ============ */
+.rub{display:grid;grid-template-columns:26rem 1fr;gap:2.4rem;align-items:center;margin-top:1rem}
+.rub svg{width:100%}
+.sl{display:grid;grid-template-columns:10rem 1fr 3.6rem;align-items:center;gap:.8rem;font-size:1rem;margin-bottom:.35rem}
+.sl small{color:var(--mutl)}
+.sl output{text-align:right;font-family:var(--fd)}
+input[type=range]{accent-color:var(--oak);width:100%}
+.presets{display:flex;gap:.6rem;flex-wrap:wrap;margin-bottom:.9rem}
+.pb{border:1.5px solid var(--forest);background:transparent;color:var(--forest);border-radius:2rem;padding:.3rem 1rem;font-size:1rem}
+.pb.on,.pb:hover{background:var(--forest);color:var(--white)}
+.total{font-family:var(--fd);font-size:4.4rem;color:var(--forest);line-height:1;white-space:nowrap;flex-shrink:0}
+.total small{font-size:1.2rem;color:var(--mutl)}
+.ev{margin-top:.8rem;padding:.7rem 1rem;border-left:.3rem solid var(--oak);background:var(--oakpale);border-radius:.4rem;font-size:1rem}
+/* ============ 7 GATE ============ */
+.gate{display:grid;grid-template-columns:1fr 1.2fr;gap:2.4rem;margin-top:1rem;align-items:start}
+.tg{display:flex;flex-wrap:wrap;gap:.6rem;margin:.6rem 0 1rem}
+.tgb{border:1.5px solid var(--forest);color:var(--forest);background:var(--white);border-radius:.8rem;padding:.5rem 1rem;font-size:1.05rem}
+.tgb.on{background:var(--stop);border-color:var(--stop);color:var(--white)}
+.sbar{position:relative;height:3.2rem;border-radius:.8rem;background:rgba(18,36,29,.1);margin:2.6rem 0 1rem}
+.sbar .fill{position:absolute;left:0;top:0;bottom:0;border-radius:.8rem;background:var(--forest3);transition:width .5s,background .5s}
+.sbar .cap2{position:absolute;top:-1.2rem;bottom:-.5rem;width:.25rem;background:var(--stop);transition:left .5s}
+.sbar .cap2 span{position:absolute;top:-1.5rem;left:50%;translate:-50% 0;font-family:var(--fd);font-size:.9rem;color:var(--stop);white-space:nowrap}
+.sbar .val{position:absolute;left:1rem;top:50%;translate:0 -50%;font-family:var(--fd);font-size:1.6rem;color:var(--white);z-index:2}
+.sbar.capped .fill{background:var(--oak2)}
+.cm{display:grid;gap:.4rem;font-size:1.05rem}
+.cm div{padding:.45rem .8rem;border-radius:.6rem;background:var(--white);border:1px solid var(--lineL)}
+.cm b{font-family:var(--fd);font-weight:500;color:var(--oak2)}
+.note{margin-top:.8rem;font-size:.95rem;color:var(--mutl)}
+/* ============ 8 DEBRIEF ============ */
+.deb{background:linear-gradient(160deg,var(--forest2),var(--forest));padding:4.4rem 6vw 3rem}
+.deb .wrap{height:100%;display:flex;flex-direction:column;justify-content:center}
+.pills{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:1.2rem}
+.pills span{padding:.4rem 1rem;border-radius:2rem;background:rgba(255,255,255,.08);border:1px solid var(--line);font-size:1.05rem}
+.pills span b{color:var(--oak3);font-family:var(--fd);margin-right:.4rem}
+.oars{display:grid;grid-template-columns:repeat(4,1fr);gap:.9rem;margin-top:1.4rem}
+.oars .card h3{font-size:2.4rem;color:var(--oak3)}
+.oars .card p{font-size:1.1rem;color:var(--sky2)}
+.rx p{font-size:1.1rem}.rx{margin-top:1.4rem;display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+/* ============ 9 STUDIO ============ */
+.stu{background:linear-gradient(160deg,var(--deep),var(--forest));padding:4.4rem 6vw 2rem}
+.stu .wrap{height:100%;display:flex;flex-direction:column}
+.stu svg{width:100%;flex:1;min-height:0}
+.steps{display:grid;grid-template-columns:repeat(6,1fr);gap:.7rem}
+.step{border-radius:.9rem;padding:.7rem .8rem;border:1px solid var(--line);background:rgba(255,255,255,.04);opacity:.4;transition:opacity .4s,background .4s,border-color .4s}
+.step.on{opacity:1}
+.step.cur{background:rgba(215,178,122,.16);border-color:var(--oak3)}
+.step b{font-family:var(--fd);font-weight:500;display:block;font-size:1.15rem;margin-bottom:.15rem}
+.step span{font-size:.95rem;color:var(--sky2);line-height:1.35;display:block}
+/* ============ 10 DOORS ============ */
+.doors{background:linear-gradient(180deg,var(--sky),var(--white));color:var(--ink);padding:4.4rem 6vw 3rem}
+.doors .wrap{height:100%;display:flex;flex-direction:column;justify-content:center}
+.tabs{display:flex;gap:.8rem;margin:1.2rem 0}
+.tab{flex:1;border:2px solid var(--forest);border-radius:1rem;padding:.8rem 1rem;background:var(--white);color:var(--forest);font-family:var(--fd);font-size:1.15rem;text-align:left}
+.tab small{display:block;font-family:var(--fb);font-size:.92rem;color:var(--mutl)}
+.tab.on{background:var(--forest);color:var(--white)}.tab.on small{color:var(--sky2)}
+.dp{display:none;grid-template-columns:1.1fr 1fr;gap:2rem;align-items:center}
+.dp.on{display:grid;animation:fi .5s}
+@keyframes fi{from{opacity:0;translate:0 1rem}}
+.dp .hk{font-family:var(--fd);font-size:2.4rem;line-height:1.25;color:var(--forest)}
+.dp ul{margin:0;padding:0;list-style:none;display:grid;gap:.6rem;font-size:1.25rem}
+.dp li{padding:.7rem 1rem;background:var(--white);border:1px solid var(--lineL);border-left:.3rem solid var(--oak);border-radius:.6rem}
+/* ============ 11 BYOK + BOARD ============ */
+.pv{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.8rem}
+.pv span{padding:.4rem .9rem;border-radius:.7rem;border:1.5px solid var(--forest);background:var(--white);font-family:var(--fd)}
+.flow{display:flex;align-items:center;gap:.6rem;margin-top:1.1rem;font-size:1.05rem;flex-wrap:wrap}
+.flow b{padding:.45rem .9rem;border-radius:.7rem;background:var(--forest);color:var(--white);font-family:var(--fd);font-weight:500}
+.flow i{font-style:normal;color:var(--oak)}
+.lb{width:100%;border-collapse:collapse;font-size:1.1rem}
+.lb td{padding:.5rem .5rem;border-bottom:1px solid var(--lineL);vertical-align:middle}
+.lb .rk{font-family:var(--fd);font-size:1.3rem;color:var(--oak2);width:2.2rem}
+.lb .sc{font-family:var(--fd);font-size:1.3rem;text-align:right;color:var(--forest)}
+.bd{display:inline-block;font-size:.82rem;padding:.08rem .5rem;border-radius:2rem;background:var(--oakpale);color:var(--oak2);border:1px solid var(--oak3);margin:.1rem .15rem .1rem 0;font-family:var(--fd)}
+/* ============ 12 LIMITS ============ */
+.lim .card h3{color:var(--oak2)}
+.lim .card p{font-size:1.15rem}
+/* ============ 13 CLOSE ============ */
+.close{text-align:center;align-items:center}
+.close h2{font-size:3.6rem;max-width:62rem;margin:0 auto}
+.close h2 em{font-style:normal;color:var(--oak3)}
+.close .sub{font-size:1.3rem;color:var(--sky2);margin-top:1rem}
+.cta{margin:2rem auto 0;display:flex;gap:1.6rem;align-items:center;justify-content:center;background:rgba(255,255,255,.07);border:1px solid var(--oak);border-radius:1.2rem;padding:1.3rem 2rem}
+.cta .qr{width:8.5rem;height:8.5rem;border-radius:.6rem;background:var(--white)}
+.cta p{font-family:var(--fd);font-size:1.4rem;text-align:left}
+.cta p small{display:block;font-family:var(--fb);font-size:1.05rem;color:var(--sky2);margin-top:.3rem}
+.foot{margin-top:2rem;font-size:.95rem;color:var(--mutd)}
+/* ============ RESPONSIVE ============ */
+@media(max-width:900px){
+  html{font-size:15px}
+  .g3,.g4,.g2,.rub,.gate,.trgrid,.dp,.rx,.oars,.convs,.tags{grid-template-columns:1fr}
+  .hero .title h1{font-size:3rem}.hook .ln{font-size:1.8rem}.hook .big{font-size:2.6rem}.hook .reveal h2{font-size:2.4rem}
+  .steps{grid-template-columns:repeat(2,1fr)}
+  .tn .tiles{grid-template-columns:1fr 1fr;bottom:6rem}.tn h2{font-size:2rem}
+  .dots,.keys{display:none}
+  .slide{padding:4rem 5vw 3rem}
+  .sl{grid-template-columns:7rem 1fr 3.4rem}
+  .tr,.deb,.stu,.doors{overflow-y:auto}
+}
+@media(prefers-reduced-motion:reduce){.wave,.wave2,.bob{animation:none}.js .rv{transition:none}}
+
+</style></head><body>
+<div class="hud" id="hud">
+  <div class="brand">
+    <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 7h22a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H15l-6 5v-5H5a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2z"/><path d="M16 11v7M12.5 14.5h7"/></svg>
+    <span>Vet Interview Lab</span>
+  </div>
+  <div class="top-r"><b id="chapName">เรื่องเปิด</b><br><span id="clock">00:00</span></div>
+  <nav class="dots" id="dots"></nav>
+  <div class="bar" id="bar"></div>
+  <div class="keys" id="keys">→ ถัดไป · ← ย้อน · N โน้ต · T นาฬิกา · F เต็มจอ · H ซ่อน HUD</div>
+</div>
+<aside id="notes" hidden><h4 id="nTitle"></h4><div id="nBody"></div><div class="tm" id="nTime"></div></aside>
+
+<!-- ===== 1 HERO ===== -->
+<section class="scene dark hero" data-u="hero" data-chapter="0" data-stops=".05,.42,.60,.72,.84,.97" style="height:420vh"
+ data-note="เปิดด้วยชื่อแอปและภาพห้องตรวจ ค่อยๆ เผยภูเขาน้ำแข็ง: สิ่งที่เจ้าของพูดเองคือยอด ที่เหลือต้องถามให้เป็น (ชั้น T / S / U) ยังไม่พูดถึง AI">
+ <div class="stick">
+  <div class="pic" id="heroPic">
+   <svg viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice" aria-label="ภูเขาน้ำแข็งของการซักประวัติ">
+    <defs>
+     <linearGradient id="hsky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1c6a52"/><stop offset="1" stop-color="#0f3a2c"/></linearGradient>
+     <linearGradient id="hsea" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0c4a52"/><stop offset="1" stop-color="#062a2a"/></linearGradient>
+    </defs>
+    <rect width="1600" height="900" fill="url(#hsky)"/>
+    <rect y="300" width="1600" height="600" fill="url(#hsea)"/>
+    <g data-in=".30,.42">
+     <g class="bob">
+      <polygon points="800,150 700,300 900,300" fill="#fffefb"/>
+      <polygon points="800,150 760,300 900,300" fill="#dcecf7" opacity=".7"/>
+     </g>
+     <rect x="170" y="110" width="440" height="120" rx="22" fill="#f3e7d3"/>
+     <polygon points="590,215 700,255 575,185" fill="#f3e7d3"/>
+     <text x="200" y="160" font-size="22" fill="#7d5124" font-family="Kanit,sans-serif">เจ้าของสัตว์ พูดเองก่อน (V)</text>
+     <text x="200" y="205" font-size="34" fill="#12241d" font-family="Kanit,sans-serif">“น้องอ้วกมา 4–5 รอบแล้วค่ะ”</text>
+    </g>
+    <path class="wave" d="M-400 300 q100 -18 200 0 t200 0 t200 0 t200 0 t200 0 t200 0 t200 0 t200 0 t200 0 t200 0 V320 H-400z" fill="#17606a" opacity=".85"/>
+    <path class="wave2" d="M-400 308 q100 14 200 0 t200 0 t200 0 t200 0 t200 0 t200 0 t200 0 t200 0 t200 0 t200 0 V330 H-400z" fill="#0c4a52" opacity=".7"/>
+    <g data-in=".50,.60">
+     <polygon points="700,300 900,300 1000,420 600,420" fill="#b9d9ee" opacity=".55"/>
+     <text x="1060" y="365" font-size="30" fill="#b9d9ee" font-family="Kanit,sans-serif">T · ถามถึงหมวดนั้น จึงเล่า</text>
+     <text x="1060" y="402" font-size="22" fill="#9dbdb0" font-family="IBM Plex Sans Thai,sans-serif">“ถ่ายเหลว สีแดงคล้ำ กลิ่นคาวมาก”</text>
+    </g>
+    <g data-in=".62,.72">
+     <polygon points="600,420 1000,420 1090,560 510,560" fill="#8fc3e8" opacity=".5"/>
+     <text x="1120" y="505" font-size="30" fill="#8fc3e8" font-family="Kanit,sans-serif">S · ต้องถามเจาะจงเท่านั้น</text>
+     <text x="1120" y="542" font-size="22" fill="#9dbdb0" font-family="IBM Plex Sans Thai,sans-serif">“อ๋อ ตุ๊กตายางหายไปสองวันแล้วค่ะ”</text>
+    </g>
+    <g data-in=".74,.84">
+     <polygon points="510,560 1090,560 990,690 610,690" fill="#4f97c8" opacity=".5"/>
+     <text x="1060" y="620" font-size="30" fill="#d7b27a" font-family="Kanit,sans-serif">U · เจ้าของไม่รู้จริง</text>
+     <text x="1060" y="656" font-size="22" fill="#9dbdb0" font-family="IBM Plex Sans Thai,sans-serif">“ไม่ได้นับค่ะ ไม่แน่ใจ”</text>
+     <text x="1060" y="700" font-size="22" fill="#d7b27a" font-family="IBM Plex Sans Thai,sans-serif">และชื่อโรค: เก็บไว้เฉลยทีหลัง</text>
+    </g>
+   </svg>
+  </div>
+  <div class="title" data-out=".28,.40">
+   <h1 class="disp">Vet Interview Lab</h1>
+   <p>ห้องซ้อมซักประวัติสัตว์ป่วย ก่อนเจอเจ้าของตัวจริง</p>
+   <span class="chip">ฉบับร่าง v3 · Open Source</span>
+  </div>
+  <div class="capt" data-in=".88,.96">สิ่งที่เจ้าของพูดเอง เป็นแค่ยอดน้ำแข็ง<br><span style="color:var(--oak3)">ที่เหลือ ต้องถามให้เป็น</span></div>
+ </div>
+</section>
+
+<!-- ===== 2 HOOK ===== -->
+<section class="scene dark hook" data-u="hook" data-chapter="0" data-stops=".14,.325,.50,.66,.825,.985" style="height:620vh"
+ data-note="จอดำ เล่าทีละบรรทัด ไม่อ้างบุคคลหรือเหตุการณ์ใด เป็นภาพเปรียบเทียบ ไม่ใช่สถิติ หยุดหายใจก่อนบรรทัด แล้วหมอสัตว์ล่ะ?">
+ <div class="stick">
+  <div class="ln" data-in=".03,.10" data-out=".18,.23">ก่อนนักบินจะจับ<em>เครื่องบินจริง</em></div>
+  <div class="ln" data-in=".22,.29" data-out=".36,.41">เขานั่งในห้องที่ <em>ไม่มีใครเดือดร้อน</em><small>เครื่องจำลองการบิน (Flight Simulator)</small></div>
+  <div class="ln" data-in=".40,.47" data-out=".53,.58">พลาดได้ ล้มได้<br><em>เริ่มใหม่ได้</em></div>
+  <div class="ln big" data-in=".56,.63" data-out=".69,.73">แล้วหมอสัตว์ล่ะ?</div>
+  <div class="ln" data-in=".72,.79" data-out=".86,.90">ครั้งแรกที่ต้องซักประวัติ<br>มักเป็นกับ<em>เจ้าของตัวจริง</em><small>ที่กำลังกังวลอยู่ตรงหน้า</small></div>
+  <div class="reveal" data-in=".92,.98"><h2>Flight Simulator <span>ของห้องตรวจ</span></h2><p>ซ้อมซักประวัติ · เจ้าของจำลอง · ตรวจแบบมีหลักฐาน</p></div>
+ </div>
+</section>
+
+<!-- ===== 3 PROBLEM ===== -->
+<section class="slide light" data-chapter="0" data-note="เจ้าของไม่ได้เล่าเป็นตำรา ในแอปมีบุคลิกเจ้าของ 4 แบบ (Cooperative, Anxious, Low Medical Literacy, Incomplete Recall) โชว์ 3 แบบที่ยากที่สุด ชี้ว่า 'นั่งเบ่ง' ในแมวอาจเป็นท้องผูกหรือฉี่ไม่ออก ต้องถามต่อ">
+ <div class="wrap">
+  <div class="kick rv">ปัญหา</div>
+  <h2 class="rv" style="--i:1">เจ้าของสัตว์ไม่ได้เล่า<br>เป็นตำรา</h2>
+  <p class="lead rv" style="--i:2">เคสจริงมาพร้อมความกังวล ศัพท์ชาวบ้าน และความจำที่ไม่ครบ แอปจึงสุ่มบุคลิกเจ้าของให้ฝึกรับมือ</p>
+  <div class="grid g3" style="margin-top:1.8rem">
+   <div class="card owner rv" style="--i:3"><div class="persona">Anxious</div><q>“หมอคะ น้องจะเป็นอะไรไหม ช่วยน้องด้วยนะคะ”</q><div class="why">กังวลจนเล่าข้ามช็อต ต้องปลอบก่อนถามต่อ</div></div>
+   <div class="card owner rv" style="--i:4"><div class="persona">Low Medical Literacy</div><q>“น่าจะท้องผูกค่ะ เห็นนั่งเบ่ง”</q><div class="why">ตีความเอง ต้องถามให้ได้สิ่งที่เห็นจริง ฉี่ออกไหม อุจจาระออกไหม</div></div>
+   <div class="card owner rv" style="--i:5"><div class="persona">Incomplete Recall</div><q>“สักสองสามเดือนมั้งคะ จำไม่ได้แน่”</q><div class="why">ช่วยเจ้าของนึกด้วยจุดอ้างอิง เช่น “หลังฉีดวัคซีนครั้งล่าสุดหรือเปล่า”</div></div>
+  </div>
+  <div class="band rv" style="--i:6">= ทักษะที่ต้องฝึกซ้ำ ไม่ใช่ท่องจำ</div>
+ </div>
+</section>
+
+<!-- ===== 4 THEN / NOW ===== -->
+<section class="scene tn" data-u="tn" data-chapter="1" data-stops=".08,.45,.8,.97" style="height:360vh"
+ data-note="ปัดภาพจาก 'ฝึกกับเคสจริง' ไปเป็น 'สนามซ้อม' แล้วโชว์ตัวเลขของแอปจริง: 10 เคส, โควตา 10/20/30 คำถามตามระดับ, 8 ด้านคะแนน, ผู้ให้บริการ AI 6 แบบ">
+ <div class="stick">
+  <div class="panel then"><div class="kick" style="color:var(--oak3)">เดิม</div><h2>ฝึกกับเคสจริง<br>ตั้งแต่หน้างาน</h2><ul><li>พลาดแล้ว กระทบทั้งสัตว์ป่วยและเจ้าของ</li><li>เลือกเคสที่อยากฝึกไม่ได้</li><li>ไม่มีใครชี้เป็นข้อๆ ว่าพลาดตรงไหน</li></ul></div>
+  <div class="panel now" id="tnNow"><div class="kick" style="color:var(--oak2)">ตอนนี้</div><h2>ซ้อมก่อนใน<br>สนามซ้อม</h2><ul><li>เลือกเคสและระดับเอง ซ้อมซ้ำกี่รอบก็ได้</li><li>เจ้าของจำลองที่เล่าเหมือนคนจริง</li><li>ได้คะแนนพร้อมหลักฐาน อ้างอิงทุก turn</li></ul></div>
+  <div class="handle" id="tnH"></div>
+  <div class="tiles" data-in=".62,.74">
+   <div class="tile"><b data-n="10">0</b><span>เคสคลาสสิก</span></div>
+   <div class="tile"><b data-n="30">0</b><span>คำถามสูงสุด (โควตา 10 · 20 · 30)</span></div>
+   <div class="tile"><b data-n="8">0</b><span>ด้านของคะแนน 100</span></div>
+   <div class="tile"><b data-n="6">0</b><span>ผู้ให้บริการ AI ให้เลือก</span></div>
+  </div>
+  <div class="bridge" data-in=".84,.92"><s>ฝึกบนสัตว์ป่วยจริง</s> → ฝึกกับเจ้าของจำลองก่อน แล้วค่อยไปเจอตัวจริง</div>
+ </div>
+</section>
+
+<!-- ===== 5 TRUST ===== -->
+<section class="scene dark" data-u="trust" data-chapter="1" data-stops=".05,.20,.36,.54,.72,.92" style="height:700vh"
+ data-note="หัวใจของเจ้าของจำลอง: ข้อมูลในเคสแบ่ง 4 ชั้น และมีป้าย V/T/S/U ว่าเปิดเมื่อไหร่ แล้วเทียบ 2 บทสนทนา ถามปิดและตัดสิน (Guarded) กับถามเปิดและสะท้อน (Open) ข้อเท็จจริงไม่เปลี่ยน เปลี่ยนแค่เกณฑ์ที่เจ้าของยอมเล่า">
+ <div class="stick tr" id="trStick">
+  <div class="wrap">
+   <div class="kick">ระดับความไว้ใจ (Trust State)</div>
+   <h2>เจ้าของไม่ได้ตอบทุกอย่างให้ใคร</h2>
+   <div class="trgrid">
+    <div class="layers">
+     <div class="lay k1"><b>1 · OWNER-KNOWN</b><span>เจ้าของรู้และเล่าได้ (แบ่งป้าย V · T · S · U)</span></div>
+     <div class="lay"><b>2 · EXAM / TEST</b><span>ผลตรวจ ผลเลือด ภาพถ่ายรังสี แสดงเมื่อนักศึกษาขอเอง</span></div>
+     <div class="lay"><b>3 · CLINICAL-UNKNOWN</b><span>ไม่มีในเคส ตอบว่าไม่ทราบ ห้ามแต่ง</span></div>
+     <div class="lay k4"><b>4 · EXPERT-ONLY</b><span>ชื่อโรคและเฉลย ปิดไว้จนจบเคส</span></div>
+    </div>
+    <div class="ra">
+     <div class="tags">
+      <div class="tag v"><i>V</i><b>Volunteered</b><q>พูดเองในประโยคเปิด “อ้วกมา 4–5 รอบแล้วค่ะ”</q></div>
+      <div class="tag t"><i>T</i><b>Topic</b><q>ถามถึงหมวด จึงเล่า “เหลว สีแดงคล้ำ กลิ่นคาว”</q></div>
+      <div class="tag s"><i>S</i><b>Specific</b><q>ต้องถามเจาะจง “อ๋อ ตุ๊กตายางหายไปสองวัน”</q></div>
+      <div class="tag u"><i>U</i><b>Unknown</b><q>เจ้าของไม่รู้จริง “ไม่ได้นับค่ะ ไม่แน่ใจ”</q></div>
+     </div>
+     <div class="convs">
+      <div class="conv A"><h3 style="color:var(--guard)">ถามปิดรัว + ตัดสิน</h3>
+       <div class="m st"><small>นักศึกษา</small>ท้องเสียไหมคะ</div><div class="m ow"><small>เจ้าของ</small>ใช่ค่ะ</div>
+       <div class="m st"><small>นักศึกษา</small>ทำไมไม่พามาเร็วกว่านี้คะ</div><div class="m ow"><small>เจ้าของ</small>ก็… พามาแล้วนี่คะ</div>
+       <div class="meter"><b>Guarded</b> · ตอบสั้น ไม่เล่าเรื่องที่รู้สึกผิด<div class="tk"><i></i></div></div></div>
+      <div class="conv B"><h3 style="color:var(--open)">ถามเปิด + สะท้อนความรู้สึก</h3>
+       <div class="m st"><small>นักศึกษา</small>ฟังแล้วเป็นห่วงน้องมากเลยนะคะ ช่วยเล่าให้ฟังหน่อยว่าเกิดอะไรขึ้น</div>
+       <div class="m ow"><small>เจ้าของ</small>เมื่อวานอ้วกหลายรอบค่ะ ถ่ายเหลว สีแดงคล้ำ กลิ่นคาวมาก… อ้อ ตุ๊กตายางของน้องก็หายไปสองวันแล้วด้วยค่ะ</div>
+       <div class="meter"><b>Open</b> · แถมข้อมูลที่ไม่ได้ถาม<div class="tk"><i></i></div></div></div>
+     </div>
+    </div>
+   </div>
+   <div class="trcap">ข้อเท็จจริงของเคสไม่เปลี่ยน เปลี่ยนแค่ “เกณฑ์ที่เจ้าของยอมเล่า”</div>
+  </div>
+ </div>
+</section>
+
+<!-- ===== 6 RUBRIC ===== -->
+<section class="slide light" data-chapter="2" data-note="AI อาจารย์ให้คะแนนจากเลข turn จริง ไม่ใช่ความรู้สึก ลองเลื่อนสไลเดอร์หรือกดพรีเซ็ต คะแนนรวมคำนวณด้วยโค้ด ไม่ให้ AI บวกเลขเอง">
+ <div class="wrap">
+  <div class="kick rv">AI อาจารย์</div>
+  <h2 class="rv" style="--i:1">คะแนน 100 จาก 8 ด้าน<br>ทุกคะแนนมีหลักฐาน</h2>
+  <div class="rub rv" style="--i:2">
+   <svg viewBox="-50 0 500 400" id="radar" aria-label="เรดาร์ 8 ด้าน"></svg>
+   <div>
+    <div class="presets" id="presets"></div>
+    <div id="sliders"></div>
+    <div style="display:flex;align-items:flex-end;gap:1.4rem;margin-top:.5rem"><div class="total" id="total">0<small> / 100</small></div><div class="ev">หลักฐานตัวอย่าง: <b>turn 3</b> “ช่วยเล่าให้ฟังหน่อย…” → ด้าน 1 และ 6 · <b>turn 7</b> ไม่ได้ถามวัคซีน → ด้าน 3 และ Safety Gate</div></div>
+   </div>
+  </div>
+ </div>
+</section>
+
+<!-- ===== 7 GATE ===== -->
+<section class="slide light" data-chapter="2" data-note="Critical Safety Gate: ต่อให้พูดเพราะแค่ไหน ถ้าพลาดข้อมูลที่ทำให้ผู้ป่วยปลอดภัย คะแนนรวมถูกกดเพดาน กดปุ่มให้เห็น ตัวเลข 75/65/60/50 เป็นข้อเสนอ รออาจารย์ยืนยัน">
+ <div class="wrap">
+  <div class="kick rv">Critical Safety Gate</div>
+  <h2 class="rv" style="--i:1">พูดเพราะแค่ไหน ก็ข้ามเรื่องความปลอดภัยไม่ได้</h2>
+  <div class="gate rv" style="--i:2">
+   <div>
+    <div class="cap">คะแนนดิบก่อนถูกกดเพดาน</div>
+    <div class="tg" id="rawBtns"></div>
+    <div class="cap">เลือกสิ่งที่เกิดขึ้นในบทสนทนา</div>
+    <div class="tg" id="gateBtns"></div>
+    <div class="cm">
+     <div><b>Parvo</b> · ต้องถาม วัคซีน + ลักษณะอุจจาระ</div>
+     <div><b>Pyometra</b> · ต้องถาม สถานะทำหมัน + เป็นสัดล่าสุด</div>
+     <div><b>แมวฉี่ตัน</b> · ต้องถาม ปริมาณฉี่ + เวลาที่ฉี่ครั้งล่าสุด</div>
+    </div>
+   </div>
+   <div>
+    <div class="sbar" id="sbar"><div class="fill" id="sfill"></div><div class="cap2" id="scap"><span id="scapT">เพดาน</span></div><div class="val" id="sval">92</div></div>
+    <div id="gmsg" style="font-family:var(--fd);font-size:1.4rem;color:var(--forest)"></div>
+    <div class="note">เพดาน 75 / 65 / 60 / 50 เป็นค่าที่เสนอ เพื่อสมดุลระหว่างความเข้มงวดกับกำลังใจนักศึกษา รออาจารย์ยืนยันก่อนใช้จริง</div>
+   </div>
+  </div>
+ </div>
+</section>
+
+<!-- ===== 8 DEBRIEF ===== -->
+<section class="scene dark" data-u="deb" data-chapter="2" data-stops=".18,.50,.80,.96" style="height:340vh"
+ data-note="หลังจบเคส Debrief ไม่ใช่แค่บอกคะแนน ใช้หลัก Motivational Interviewing (OARS) ในการให้ฟีดแบ็ก จบด้วยใบสั่งฝึก ตัวอย่างข้างล่างเป็นภาพประกอบ ไม่ใช่ผลจริง">
+ <div class="stick deb">
+  <div class="wrap">
+   <div class="kick">Debrief แบบ Motivational Interviewing</div>
+   <h2>ไม่ใช่แค่บอกคะแนน<br>แต่บอกว่า “ทำไม” และ “ฝึกอะไรต่อ”</h2>
+   <div class="pills" data-in=".05,.15"><span><b>1</b>คะแนน + Safety Gate</span><span><b>2</b>เฉลยและไทม์ไลน์</span><span><b>3</b>ตารางรายคำถาม</span><span><b>4</b>ข้อมูลที่พลาด</span><span><b>5</b>คำที่แปลผิด</span><span><b>6</b>เจ้าของรู้สึกอย่างไร</span><span><b>7</b>Key take-away 3 ข้อ</span><span><b>8</b>คำถามชวนคิด</span><span><b>9</b>ใบสั่งฝึก</span></div>
+   <div class="oars" data-in=".34,.46">
+    <div class="card"><h3>O</h3><p><b>Open</b> คำถามปลายเปิด ให้เจ้าของเล่าเอง</p></div>
+    <div class="card"><h3>A</h3><p><b>Affirm</b> ชื่นชมสิ่งที่เจ้าของทำมาแล้ว</p></div>
+    <div class="card"><h3>R</h3><p><b>Reflect</b> สะท้อนความรู้สึกก่อนถามต่อ</p></div>
+    <div class="card"><h3>S</h3><p><b>Summarize</b> สรุปทวน ตรวจว่าเข้าใจตรงกัน</p></div>
+   </div>
+   <div class="rx" data-in=".64,.76">
+    <div class="card"><h3>ตัวอย่างฟีดแบ็ก (ประกอบ)</h3><p>turn 5 “ทำไมไม่พามาเร็วกว่านี้” ทำให้เจ้าของตอบสั้นลง ลองเปลี่ยนเป็น “คุณสังเกตเห็นได้เร็วมากเลยนะคะ”</p></div>
+    <div class="card"><h3>ใบสั่งฝึก</h3><p>ฝึกต่อ: สะท้อนความรู้สึกก่อนถามข้อต่อไป · แนะนำให้ลองเคสที่ต้องเจอเจ้าของกังวล</p></div>
+   </div>
+  </div>
+ </div>
+</section>
+
+<!-- ===== 9 STUDIO ===== -->
+<section class="scene dark" data-u="studio" data-chapter="3" data-stops=".08,.25,.42,.58,.75,.92" style="height:640vh"
+ data-note="Studio สำหรับอาจารย์: ใช้ PDF หรือรูปเวชระเบียนเป็นแรงบันดาลใจ ไม่ลอกตัวต่อตัว เลือกได้ว่า 1 PDF = 1 เคส หรือหลาย PDF โรคเดียวกันรวมเป็นเคสผสม ระบายดำก่อนส่ง AI เสมอ แล้วให้ AI อีกตัวตรวจซ้ำ">
+ <div class="stick stu">
+  <div class="wrap">
+   <div class="kick">Studio · สำหรับอาจารย์</div>
+   <h2>จากเวชระเบียน เป็นโจทย์ที่แจกการบ้านได้</h2>
+   <svg viewBox="0 0 1600 260" id="route" preserveAspectRatio="xMidYMid meet">
+    <path id="rp" d="M60 150 C 260 30, 380 30, 540 130 S 820 250, 1000 130 S 1380 20, 1540 120" fill="none" stroke="#d7b27a" stroke-width="5" stroke-dasharray="2 14" stroke-linecap="round" opacity=".7"/>
+    <g id="rst"></g>
+    <circle id="tok" r="16" fill="#fffefb" stroke="#a8713a" stroke-width="6"/>
+   </svg>
+   <div class="steps" id="steps">
+    <div class="step"><b>1 โยนไฟล์</b><span>PDF หรือรูปถ่ายเวชระเบียน (ภาพสแกนใช้ระบายดำบนภาพ)</span></div>
+    <div class="step"><b>2 ระบายดำ</b><span>ปิดตัวเลข ชื่อ วันที่ ก่อนส่งให้ AI เสมอ</span></div>
+    <div class="step"><b>3 AI เขียนเคสใหม่</b><span>1 PDF = 1 เคส หรือรวมหลายไฟล์โรคเดียวกัน เก็บ Final diagnosis ให้ใกล้เคียง</span></div>
+    <div class="step"><b>4 AI ตรวจซ้ำ</b><span>หาข้อมูลระบุตัวตนที่หลุด จุดขัดทางคลินิก จุดควรปรับเพื่อสอน</span></div>
+    <div class="step"><b>5 รับรองและแพ็ก</b><span>เลือกหลายเคสเป็น .vilpack.zip ล็อกด้วยรหัสห้อง</span></div>
+    <div class="step"><b>6 ฝึกและส่งผลกลับ</b><span>อาจารย์เห็นสถิติทั้งห้อง ว่าพลาด Critical miss ตรงไหน</span></div>
+   </div>
+  </div>
+ </div>
+</section>
+
+<!-- ===== 10 DOORS ===== -->
+<section class="scene light" data-u="doors" data-chapter="3" data-stops=".1,.5,.88" style="height:340vh"
+ data-note="สามประตูเข้าใช้ แต่ละกลุ่มมี hook ของตัวเอง กดแท็บด้วยเมาส์ได้ หรือกด clicker เพื่อเลื่อนไปกลุ่มถัดไป">
+ <div class="stick doors">
+  <div class="wrap">
+   <div class="kick">ใครใช้ได้บ้าง</div>
+   <h2>สามประตู หนึ่งห้องซ้อม</h2>
+   <div class="tabs" id="tabs">
+    <button class="tab on" data-i="0">นิสิต / หมอจบใหม่<small>ซ้อมมือ</small></button>
+    <button class="tab" data-i="1">อาจารย์สัตวแพทย์<small>สร้างโจทย์ · ดูผลทั้งห้อง</small></button>
+    <button class="tab" data-i="2">เจ้าของ / ผู้บริหาร รพ.สัตว์<small>มาตรฐานเดียวกันทั้งทีม</small></button>
+   </div>
+   <div class="dp on"><div class="hk">พลาดในนี้ เสียแค่คะแนน<br>พลาดหน้างานจริง เสียความมั่นใจ</div><ul><li>ซ้อมกับ 10 เคสคลาสสิก ตั้งแต่ Parvo แมวฉี่ตัน Pyometra ไปถึง DKA</li><li>เลือกระดับและโควตา 10 · 20 · 30 คำถาม</li><li>Debrief บอกว่าพลาดตรงไหน พร้อมใบสั่งฝึก และ badge สะสม</li></ul></div>
+   <div class="dp"><div class="hk">เห็นว่าเด็กทั้งห้อง<br>พลาด Critical miss ตรงไหน</div><ul><li>โยน PDF หรือรูปเวชระเบียน แปลงเป็นเคสนิรนาม</li><li>แพ็ก .vilpack.zip ล็อกรหัสห้อง แจกเป็นการบ้าน</li><li>รับไฟล์ผลกลับมาดูสถิติรวม ปรับ Rubric ได้ตามหลักสูตร</li></ul></div>
+   <div class="dp"><div class="hk">ซักประวัติและคัดกรอง red flag<br>มาตรฐานเดียวกันทั้งโรงพยาบาล</div><ul><li>ใช้ onboarding หมอใหม่ ก่อนขึ้นเจอเจ้าของจริง</li><li>ทำเคสจากโรคที่พบบ่อยใน รพ. ของตัวเองเพิ่มได้</li><li>ใช้ AI ของตัวเอง จ่ายตามการใช้จริง ไม่ต้องสมัครสมาชิก</li></ul></div>
+  </div>
+ </div>
+</section>
+
+<!-- ===== 11 BYOK + BOARD ===== -->
+<section class="slide light" data-chapter="3" data-note="เชื่อม AI ได้ 6 แบบด้วย key ของตัวเอง คีย์ไม่ถูกเก็บในโค้ด ฝั่งขวาคือ Leaderboard และ badge ในแอปมี 29 แบบ ตารางตัวอย่างเป็นข้อมูลสาธิต">
+ <div class="wrap">
+  <div class="grid g2" style="gap:3rem;align-items:start">
+   <div>
+    <div class="kick rv">เชื่อม AI</div>
+    <h2 class="rv" style="--i:1">เอา key ของตัวเองมาเสียบ</h2>
+    <div class="pv rv" style="--i:2"><span>Claude</span><span>ChatGPT</span><span>Gemini</span><span>OpenRouter</span><span>OrcaRouter</span><span>อื่นๆ / LLM ในเครื่อง</span></div>
+    <div class="flow rv" style="--i:3"><b>key ของคุณ</b><i>→</i><b>เบราว์เซอร์</b><i>→</i><b>ผู้ให้บริการ AI</b></div>
+    <p class="lead rv" style="--i:4">ไม่ฝัง key ในโค้ด ไม่ขึ้น GitHub สถาบันที่อยากคุมเองใช้โหมดเซิร์ฟเวอร์พร้อมรหัสเข้าใช้ได้</p>
+   </div>
+   <div>
+    <div class="kick rv">Leaderboard</div>
+    <h2 class="rv" style="--i:1">สะสม badge จากฝีมือจริง</h2>
+    <div class="card rv" style="--i:2;margin-top:1rem;padding:.6rem 1rem">
+     <table class="lb">
+      <tr><td class="rk">1</td><td>นิสิต A<br><span class="bd">Safe Hands</span><span class="bd">Trust Builder</span></td><td class="sc">94</td></tr>
+      <tr><td class="rk">2</td><td>นิสิต B<br><span class="bd">Open Door</span><span class="bd">Funnel Pro</span></td><td class="sc">88</td></tr>
+      <tr><td class="rk">3</td><td>นิสิต C<br><span class="bd">Calm in the Storm</span></td><td class="sc">83</td></tr>
+      <tr><td class="rk">4</td><td>นิสิต D<br><span class="bd">First Consult</span></td><td class="sc">79</td></tr>
+     </table>
+    </div>
+    <div class="src rv" style="--i:3">ข้อมูลสาธิต · ในแอปมี badge 29 แบบ</div>
+   </div>
+  </div>
+ </div>
+</section>
+
+<!-- ===== 12 LIMITS ===== -->
+<section class="slide light lim" data-chapter="4" data-note="พูดข้อจำกัดตรงๆ ก่อนที่ใครจะถาม นี่คือสิ่งที่ทำให้อาจารย์ไว้ใจ ย้ำเรื่อง PDPA เสมอ">
+ <div class="wrap">
+  <div class="kick rv">ข้อจำกัดที่บอกกันตรงๆ</div>
+  <h2 class="rv" style="--i:1">ฉบับร่างนี้ เหมาะเป็น “สนามซ้อม”<br>ยังไม่ใช่ข้อสอบจริง</h2>
+  <div class="grid g3" style="margin-top:1.8rem">
+   <div class="card rv" style="--i:2"><h3>ไม่ใช่ข้อสอบ</h3><p>คนแกะโค้ดยังพอแงะเฉลยได้ รหัสห้องเป็นการล็อกแบบเบา และไฟล์ผลคะแนนยังไม่มีลายเซ็นกันแก้</p></div>
+   <div class="card rv" style="--i:3"><h3>ค่าแล็บเป็นค่าจำลอง</h3><p>ใน 10 เคสตัวอย่าง รออาจารย์สัตวแพทย์ช่วยตรวจทาน เพดานคะแนน 75/65/60/50 ก็รอยืนยันเช่นกัน</p></div>
+   <div class="card rv" style="--i:4"><h3>ข้อมูลจริงต้องระวัง PDPA</h3><p>ต้องได้รับอนุมัติก่อนนำเวชระเบียนจริงมาใช้ ระบบระบายดำก่อนส่ง AI และมีรอบตรวจซ้ำ แต่คนต้องตรวจเสมอ</p></div>
+  </div>
+  <div class="band rv" style="--i:5">AI ไม่แทนสัญชาตญาณหมอหน้างาน เป็นคู่ซ้อมราคาถูกที่ช่วยเร่งชั่วโมงบิน</div>
+ </div>
+</section>
+
+<!-- ===== 13 CLOSE ===== -->
+<section class="slide dark close" data-chapter="4" data-note="ปิดด้วยการย้อนกลับไปหานักบิน เปิดลิงก์หรือ QR ค้างไว้ระหว่างถาม-ตอบ ตั้งค่า LINK ใน script ด้านล่างเมื่อมีลิงก์จริง">
+ <h2 class="rv">นักบินไม่ได้เก่งเพราะเครื่องจำลอง<br>แต่เพราะได้ <em>บินซ้ำ</em> ก่อนถึงวันจริง</h2>
+ <p class="sub rv" style="--i:1">ให้หมอสัตว์รุ่นใหม่ได้ <em style="font-style:normal;color:var(--oak3)">ซักซ้ำ</em> ก่อนเจอเจ้าของตัวจริง</p>
+ <div class="cta rv" style="--i:2">
+  <img class="qr" id="qrImg" src="qr.png" alt="QR" onerror="this.hidden=true">
+  <p id="ctaTxt">Open Source ให้วงการเอาไปต่อยอดฟรี<small id="ctaSm">ทักมาขอลิงก์ทดลองและวิธีเชื่อม API ได้เลย</small></p>
+ </div>
+ <div class="foot rv" style="--i:3">Vet Interview Lab v3 · ฉบับร่าง · ข้อมูลในหน้านี้ที่เป็นภาพประกอบถูกระบุไว้ในแต่ละฉาก</div>
+</section>
+
+<script>
+{
+const LINK = '';            // ← ใส่ลิงก์ทดลอง/GitHub ตรงนี้ เช่น 'github.com/…' (ว่าง = แสดงข้อความ “ทักมาขอลิงก์”)
+const CHAPTERS = [
+  {n:'เรื่องเปิด',        m15:'0:00–2:30',  m20:'0:00–3:00'},
+  {n:'สนามซ้อม',          m15:'2:30–5:30',  m20:'3:00–7:00'},
+  {n:'ตรวจแบบมีหลักฐาน',  m15:'5:30–9:30',  m20:'7:00–12:30'},
+  {n:'ใช้กับใคร',         m15:'9:30–13:00', m20:'12:30–17:00'},
+  {n:'ตรงไปตรงมา',        m15:'13:00–15:00',m20:'17:00–20:00'}
+];
+const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelectorAll(s)];
+const clamp=(x,a=0,b=1)=>Math.min(b,Math.max(a,x));
+const seg=(p,a,b)=>clamp((p-a)/(b-a));
+const ease=t=>t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
+document.documentElement.classList.add('js');
+const U={};
+const secs=$$('section[data-chapter]');
+const scenes=$$('.scene');
+for(const sc of scenes){
+  sc._io=$$('[data-in],[data-out]',sc).map(el=>({el,i:(el.dataset.in||'').split(',').filter(Boolean).map(Number),o:(el.dataset.out||'').split(',').filter(Boolean).map(Number),svg:el instanceof SVGElement}));
+}
+/* ---------- reveal for slides ---------- */
+const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting)e.target.classList.add('in')}),{threshold:.15});
+$$('.rv').forEach(el=>io.observe(el));
+/* ---------- HUD ---------- */
+const dots=$('#dots');
+CHAPTERS.forEach((c,i)=>{const a=document.createElement('a');a.innerHTML=`<span>${c.n}</span>`;a.onclick=()=>{const s=secs.find(x=>+x.dataset.chapter===i);goTo(abs(s));};dots.append(a)});
+const hud=$('#hud'), bar=$('#bar'), chapName=$('#chapName'), clockEl=$('#clock');
+const abs=el=>el.getBoundingClientRect().top+scrollY;
+let curChap=-1, curSec=null;
+function updateHud(){
+  const vh=innerHeight;
+  let under=secs.find(s=>{const r=s.getBoundingClientRect();return r.top<=40&&r.bottom>40})||secs[0];
+  hud.classList.toggle('l',under.classList.contains('light')&&!under.classList.contains('dark'));
+  const mid=secs.find(s=>{const r=s.getBoundingClientRect();return r.top<=vh*.5&&r.bottom>vh*.5})||under;
+  const ch=+mid.dataset.chapter;
+  if(ch!==curChap){curChap=ch;chapName.textContent=CHAPTERS[ch].n;$$('a',dots).forEach((a,i)=>a.classList.toggle('on',i===ch));}
+  if(mid!==curSec){curSec=mid;if(!$('#notes').hidden)renderNotes();}
+  const max=document.documentElement.scrollHeight-vh;
+  bar.style.width=(clamp(scrollY/max)*100)+'%';
+}
+/* ---------- frame loop ---------- */
+let raf=0;
+function frame(){
+  raf=0;const vh=innerHeight;
+  for(const sc of scenes){
+    const r=sc.getBoundingClientRect();
+    if(r.bottom<-60||r.top>vh+60)continue;
+    const p=clamp(-r.top/(sc.offsetHeight-vh));
+    for(const o of sc._io){
+      const vin=o.i.length?seg(p,o.i[0],o.i[1]):1, vout=o.o.length?seg(p,o.o[0],o.o[1]):0;
+      o.el.style.opacity=(vin*(1-vout)).toFixed(3);
+      if(!o.svg)o.el.style.translate=`0 ${((1-vin)*1.4-vout*1.2).toFixed(2)}rem`;
+    }
+    U[sc.dataset.u]?.(p,sc);
+  }
+  updateHud();
+}
+const sched=()=>{if(!raf)raf=requestAnimationFrame(frame)};
+addEventListener('scroll',sched,{passive:true});addEventListener('resize',()=>{buildStops();sched()});
+/* ---------- scene logic ---------- */
+U.hero=(p,sc)=>{const pic=$('#heroPic');pic.style.transform=`perspective(1600px) rotateX(${((1-ease(seg(p,0,.45)))*7).toFixed(2)}deg) scale(${(1+seg(p,.5,1)*.05).toFixed(3)})`};
+U.tn=(p,sc)=>{
+  const w=ease(seg(p,.1,.58))*100;
+  $('#tnNow').style.clipPath=`inset(0 ${100-w}% 0 0)`;
+  $('#tnH').style.left=`calc(${w}% - .15rem)`;$('#tnH').style.opacity=(w>1&&w<99)?1:0;
+  sc.classList.toggle('light',w>50);
+  const k=seg(p,.62,.8);$$('.tile b',sc).forEach(b=>b.textContent=Math.round(+b.dataset.n*k));
+};
+U.trust=(p,sc)=>{
+  const s=p<.12?0:p<.28?1:p<.45?2:p<.63?3:p<.81?4:5;
+  const st=$('#trStick');for(let i=1;i<=5;i++)st.classList.toggle('s'+i,s>=i);
+};
+U.deb=()=>{};
+/* studio route */
+const rp=$('#rp'),rst=$('#rst'),tok=$('#tok'),steps=$$('#steps .step');
+const FR=[0,.2,.4,.6,.8,1];let RL=0;
+function buildRoute(){
+  RL=rp.getTotalLength();rst.innerHTML='';
+  FR.forEach((f,i)=>{const pt=rp.getPointAtLength(RL*f);
+    const g=document.createElementNS('http://www.w3.org/2000/svg','g');
+    g.innerHTML=`<circle cx="${pt.x}" cy="${pt.y}" r="26" fill="#0f3a2c" stroke="#d7b27a" stroke-width="4"/><text x="${pt.x}" y="${pt.y+9}" text-anchor="middle" font-size="26" fill="#fffefb" font-family="Kanit,sans-serif">${i+1}</text>`;
+    rst.append(g);});
+}
+buildRoute();
+U.studio=(p,sc)=>{
+  const t=seg(p,.08,.92), pt=rp.getPointAtLength(RL*t);
+  tok.setAttribute('cx',pt.x);tok.setAttribute('cy',pt.y);
+  let cur=0;FR.forEach((f,i)=>{if(t>=f-.01)cur=i});
+  steps.forEach((s,i)=>{s.classList.toggle('on',i<=cur);s.classList.toggle('cur',i===cur)});
+};
+/* doors */
+const tabs=$$('#tabs .tab'),dps=$$('.dp');
+function setDoor(i){tabs.forEach((t,j)=>t.classList.toggle('on',i===j));dps.forEach((d,j)=>d.classList.toggle('on',i===j));}
+tabs.forEach((t,i)=>t.onclick=()=>{setDoor(i);t.blur()});
+U.doors=p=>setDoor(p<.33?0:p<.7?1:2);
+/* rubric radar */
+{
+  const D=['เปิดบทสนทนา','HPI','ทบทวนระบบ','Red flag','เทคนิคถาม','สื่อสาร','บันทึก','แผนคิด'];
+  const W=[10,20,20,10,10,10,10,10];
+  const PRE={'ครบทุกด้าน':[90,85,85,90,85,85,80,80],'เปิดเก่ง แต่ลืมถามระบบ':[92,80,40,45,80,85,70,60],'ถามรัว ไม่ฟัง':[60,55,50,60,30,25,60,50]};
+  let V=PRE['ครบทุกด้าน'];
+  const svg=$('#radar'),C=200,R=140,ns='http://www.w3.org/2000/svg';
+  const ang=i=>-Math.PI/2+i*2*Math.PI/8, pt=(i,r)=>[C+Math.cos(ang(i))*r,C+Math.sin(ang(i))*r];
+  let h='';
+  [.25,.5,.75,1].forEach(k=>{h+=`<polygon points="${D.map((_,i)=>pt(i,R*k).join(',')).join(' ')}" fill="none" stroke="#12241d" stroke-opacity=".15"/>`});
+  D.forEach((d,i)=>{const [x,y]=pt(i,R);const [lx,ly]=pt(i,R+26);h+=`<line x1="${C}" y1="${C}" x2="${x}" y2="${y}" stroke="#12241d" stroke-opacity=".15"/><text x="${lx}" y="${ly+4}" text-anchor="middle" font-size="12.5" fill="#5c6e66" font-family="IBM Plex Sans Thai,sans-serif">${d}</text>`});
+  h+=`<polygon id="rpoly" fill="#a8713a" fill-opacity=".35" stroke="#7d5124" stroke-width="2.5"/>`;
+  svg.innerHTML=h;
+  const sl=$('#sliders'),pr=$('#presets');
+  D.forEach((d,i)=>{const row=document.createElement('div');row.className='sl';
+    row.innerHTML=`<span>${d} <small>/${W[i]}</small></span><input type="range" min="0" max="100" value="${V[i]}" data-i="${i}"><output></output>`;sl.append(row)});
+  Object.keys(PRE).forEach(k=>{const b=document.createElement('button');b.className='pb';b.textContent=k;b.onclick=()=>{V=PRE[k].slice();render();b.blur()};pr.append(b)});
+  sl.addEventListener('input',e=>{V[+e.target.dataset.i]=+e.target.value;render()});
+  sl.addEventListener('pointerup',e=>e.target.blur?.());
+  function render(){
+    $('#rpoly').setAttribute('points',V.map((v,i)=>pt(i,R*v/100).join(',')).join(' '));
+    $$('input',sl).forEach((inp,i)=>{inp.value=V[i];inp.nextElementSibling.textContent=(W[i]*V[i]/100).toFixed(1)});
+    $('#total').firstChild.textContent=Math.round(V.reduce((a,v,i)=>a+W[i]*v/100,0));
+    $$('.pb',pr).forEach(b=>b.classList.toggle('on',JSON.stringify(PRE[b.textContent])===JSON.stringify(V)));
+  }
+  render();
+}
+/* safety gate */
+{
+  let raw=92,miss=0,unsafe=false;
+  const rb=$('#rawBtns'),gb=$('#gateBtns');
+  [[92,'ทำดีมาก 92'],[85,'ดี 85'],[78,'พอใช้ 78']].forEach(([v,t])=>{const b=document.createElement('button');b.className='tgb'+(v===raw?' on':'');b.style.setProperty('--x','1');b.textContent=t;b.dataset.v=v;
+    b.onclick=()=>{raw=v;$$('.tgb',rb).forEach(x=>x.classList.toggle('on',+x.dataset.v===v));render();b.blur()};rb.append(b)});
+  const G=[['ลืมถามข้อ Critical 1 ข้อ','m1'],['ลืม Critical ตั้งแต่ 2 ข้อ','m2'],['แนะนำสิ่งไม่ปลอดภัย','u']];
+  G.forEach(([t,k])=>{const b=document.createElement('button');b.className='tgb';b.textContent=t;b.dataset.k=k;
+    b.onclick=()=>{
+      if(k==='u')unsafe=!unsafe;else{const m=k==='m1'?1:2;miss=miss===m?0:m}
+      render();b.blur()};gb.append(b)});
+  const sbar=$('#sbar'),fill=$('#sfill'),cap=$('#scap');
+  function render(){
+    $$('.tgb',gb).forEach(b=>{const k=b.dataset.k;b.classList.toggle('on',k==='u'?unsafe:(k==='m1'?miss===1:miss===2))});
+    const c=unsafe&&miss?50:unsafe?60:miss===2?65:miss===1?75:100;
+    const fin=Math.min(raw,c);
+    fill.style.width=fin+'%';cap.style.left=c+'%';cap.style.visibility=c<100?'visible':'hidden';
+    $('#scapT').textContent='เพดาน '+c;
+    $('#sval').textContent=fin;
+    sbar.classList.toggle('capped',fin<raw);
+    $('#gmsg').textContent=fin<raw?`ถูกกดจาก ${raw} เหลือ ${fin}`:'ไม่ถูกกดเพดาน';
+  }
+  render();
+}
+/* ---------- close slide link ---------- */
+if(LINK){$('#ctaTxt').firstChild.textContent=LINK;$('#ctaSm').textContent='ลองได้เลย · Open Source'}
+/* ---------- navigation ---------- */
+let stops=[];
+function buildStops(){
+  const vh=innerHeight;stops=[];
+  for(const s of secs){
+    const top=abs(s);
+    if(s.classList.contains('scene')){
+      const span=s.offsetHeight-vh;
+      (s.dataset.stops||'0').split(',').forEach(v=>stops.push(Math.round(top+span*+v)));
+    }else{
+      const ov=s.offsetHeight-vh;
+      if(ov<=0)stops.push(Math.round(top));
+      else if(ov<=vh*.35){stops.push(Math.round(top+Math.min(ov,vh*.1)))}
+      else{for(let y=0;y<ov;y+=vh*.8)stops.push(Math.round(top+y));stops.push(Math.round(top+ov))}
+    }
+  }
+  stops=[...new Set(stops)].sort((a,b)=>a-b);
+}
+let anim=0;
+function goTo(y,dur){
+  cancelAnimationFrame(anim);const y0=scrollY,d=y-y0;if(!d)return;
+  dur=dur||clamp(Math.abs(d)/innerHeight*350+500,500,1300);const t0=performance.now();
+  const step=t=>{const k=clamp((t-t0)/dur);scrollTo(0,y0+d*ease(k));if(k<1)anim=requestAnimationFrame(step)};
+  anim=requestAnimationFrame(step);
+}
+const next=()=>{const y=scrollY;const s=stops.find(v=>v>y+8);if(s!=null)goTo(s)};
+const prev=()=>{const y=scrollY;const s=[...stops].reverse().find(v=>v<y-8);goTo(s!=null?s:0)};
+/* ---------- clock + notes ---------- */
+let t0=0,clockOn=true;
+const fmt=s=>String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');
+setInterval(()=>{if(t0&&clockOn)clockEl.textContent=fmt(Math.floor((Date.now()-t0)/1000))},500);
+function renderNotes(){
+  const s=curSec||secs[0],c=CHAPTERS[+s.dataset.chapter];
+  $('#nTitle').textContent='โน้ตผู้พูด · '+c.n;
+  $('#nBody').textContent=s.dataset.note||'';
+  $('#nTime').textContent=`ช่วงเวลา: ${c.m15} (ฉบับ 15 นาที) · ${c.m20} (ฉบับ 20 นาที)`;
+}
+addEventListener('keydown',e=>{
+  if(e.target.matches('input,textarea,select'))return;
+  if(e.target.matches('button')&&e.key===' ')return;
+  if(e.ctrlKey||e.metaKey||e.altKey)return;
+  if(!t0)t0=Date.now();
+  $('#keys').classList.add('gone');
+  const k=e.key;
+  if(['ArrowRight','ArrowDown','PageDown',' '].includes(k)){e.preventDefault();next()}
+  else if(['ArrowLeft','ArrowUp','PageUp'].includes(k)){e.preventDefault();prev()}
+  else if(k==='Home'){e.preventDefault();goTo(0)}
+  else if(k==='End'){e.preventDefault();goTo(document.documentElement.scrollHeight)}
+  else if(k==='f'||k==='F'){document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen?.()}
+  else if(k==='n'||k==='N'){const n=$('#notes');n.hidden=!n.hidden;if(!n.hidden)renderNotes()}
+  else if(k==='t'||k==='T'){clockOn=!clockOn;clockEl.style.visibility=clockOn?'visible':'hidden'}
+  else if(k==='h'||k==='H'){hud.style.display=hud.style.display==='none'?'':'none'}
+});
+addEventListener('load',()=>{buildStops();buildRoute();sched()});
+document.fonts?.ready.then(()=>{buildStops();sched()});
+buildStops();sched();
+setTimeout(()=>$('#keys').classList.add('gone'),9000);
+window.__stops=()=>stops;
+}
+
+</script></body></html>
